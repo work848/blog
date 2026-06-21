@@ -43,12 +43,7 @@ export default function Login() {
           className="inline-flex items-center gap-2 text-aiiro-muted hover:text-aiiro-accent transition-colors mb-8 group"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          <span
-            className="font-serif-jp text-sm tracking-wider"
-            style={{ fontFamily: "'Noto Serif JP', serif" }}
-          >
-            表へ戻る
-          </span>
+          <span className="text-sm">返回首页</span>
         </Link>
 
         <div className="glass-card rounded-2xl p-8 md:p-10">
@@ -58,15 +53,12 @@ export default function Login() {
 
           <h1
             className="text-3xl font-bold text-white text-center mb-2 font-serif-display"
-            style={{ fontFamily: "'Playfair Display', 'Noto Serif JP', serif" }}
+            style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            管理登錄
+            管理登录
           </h1>
-          <p
-            className="text-aiiro-muted text-center mb-8 font-serif-jp text-sm"
-            style={{ fontFamily: "'Noto Serif JP', serif" }}
-          >
-            藍染管理システムへようこそ
+          <p className="text-aiiro-muted text-center mb-8 text-sm">
+            欢迎使用蓝染博客管理系统
           </p>
 
           {error && (
@@ -77,11 +69,8 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label
-                className="block text-sm font-medium text-aiiro-light mb-2 font-serif-jp"
-                style={{ fontFamily: "'Noto Serif JP', serif" }}
-              >
-                ユーザー名
+              <label className="block text-sm font-medium text-aiiro-light mb-2">
+                用户名
               </label>
               <input
                 type="text"
@@ -94,11 +83,8 @@ export default function Login() {
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-aiiro-light mb-2 font-serif-jp"
-                style={{ fontFamily: "'Noto Serif JP', serif" }}
-              >
-                パスワード
+              <label className="block text-sm font-medium text-aiiro-light mb-2">
+                密码
               </label>
               <div className="relative">
                 <input
@@ -127,15 +113,10 @@ export default function Login() {
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={18} />
-                  <span>ログイン中...</span>
+                  <span>登录中...</span>
                 </>
               ) : (
-                <span
-                  className="font-serif-jp tracking-wider"
-                  style={{ fontFamily: "'Noto Serif JP', serif" }}
-                >
-                  ログイン
-                </span>
+                <span>登录</span>
               )}
             </button>
           </form>
@@ -143,7 +124,7 @@ export default function Login() {
           <div className="mt-8 text-center">
             <div className="w-full h-px bg-gradient-to-r from-transparent via-aiiro-border to-transparent mb-6" />
             <p className="text-xs text-aiiro-muted/60">
-              Default: admin / admin123
+              默认账号: admin / admin123
             </p>
           </div>
         </div>

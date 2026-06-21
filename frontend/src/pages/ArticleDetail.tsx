@@ -114,12 +114,7 @@ export default function ArticleDetail() {
               className="inline-flex items-center gap-2 text-aiiro-muted hover:text-aiiro-accent transition-colors group"
             >
               <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-              <span
-                className="font-serif-jp text-sm tracking-wider"
-                style={{ fontFamily: "'Noto Serif JP', serif" }}
-              >
-                一覧へ戻る
-              </span>
+              <span className="text-sm">返回列表</span>
             </Link>
 
             <div className="flex items-center gap-3">
@@ -150,12 +145,7 @@ export default function ArticleDetail() {
                     border: '1px solid rgba(58, 134, 255, 0.3)',
                   }}
                 >
-                  <span
-                    className="font-serif-jp"
-                    style={{ fontFamily: "'Noto Serif JP', serif" }}
-                  >
-                    {article.category.name}
-                  </span>
+                  {article.category.name}
                 </span>
               )}
 
@@ -193,8 +183,7 @@ export default function ArticleDetail() {
                     {article.tags.map((tag) => (
                       <span
                         key={tag.id}
-                        className="text-xs text-aiiro-muted bg-aiiro-surface/50 px-3 py-1 rounded-full border border-aiiro-border/50 font-serif-jp"
-                        style={{ fontFamily: "'Noto Serif JP', serif" }}
+                        className="text-xs text-aiiro-muted bg-aiiro-surface/50 px-3 py-1 rounded-full border border-aiiro-border/50"
                       >
                         {tag.name}
                       </span>
@@ -307,12 +296,7 @@ export default function ArticleDetail() {
                       !likeStatus?.liked ? 'group-hover:scale-110' : ''
                     }`}
                   />
-                  <span
-                    className="font-serif-jp tracking-wider"
-                    style={{ fontFamily: "'Noto Serif JP', serif" }}
-                  >
-                    {likeStatus?.liked ? '感謝' : 'いいね'}
-                  </span>
+                  <span>{likeStatus?.liked ? '已点赞' : '点赞'}</span>
                   <span className="text-aiiro-muted/80 tabular-nums pl-3 border-l border-aiiro-border/50">
                     {likeStatus?.likeCount ?? article.likeCount}
                   </span>
@@ -322,12 +306,7 @@ export default function ArticleDetail() {
                   to="/"
                   className="flex items-center gap-2 text-aiiro-muted hover:text-aiiro-accent transition-colors group"
                 >
-                  <span
-                    className="font-serif-jp text-sm tracking-wider"
-                    style={{ fontFamily: "'Noto Serif JP', serif" }}
-                  >
-                    他の記事を読む
-                  </span>
+                  <span className="text-sm">浏览更多文章</span>
                   <ChevronRight
                     size={16}
                     className="group-hover:translate-x-1 transition-transform"
@@ -346,14 +325,11 @@ export default function ArticleDetail() {
                 className="font-serif-display text-lg font-bold text-white"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                Aiiro Blog
+                蓝染博客
               </span>
             </div>
-            <p
-              className="text-sm text-aiiro-muted font-serif-jp"
-              style={{ fontFamily: "'Noto Serif JP', serif" }}
-            >
-              一期一会 · Ichigo Ichie
+            <p className="text-sm text-aiiro-muted">
+              一期一会 · 每一次相遇都是独一无二的
             </p>
             <p className="text-xs text-aiiro-muted/60 mt-3">
               © 2026 All rights reserved.

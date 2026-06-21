@@ -22,10 +22,10 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
   }, []);
 
   const navItems = [
-    { label: '首頁', path: '/', icon: Home },
+    { label: '首页', path: '/', icon: Home },
     { label: '文章', path: '/#articles', icon: BookOpen },
-    { label: '標籤', path: '/#tags', icon: Tag },
-    { label: '關於', path: '/#about', icon: Info },
+    { label: '标签', path: '/#tags', icon: Tag },
+    { label: '关于', path: '/#about', icon: Info },
   ];
 
   if (isMobile) {
@@ -56,9 +56,9 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
             <div className="mb-10">
               <h2
                 className="font-serif-display text-2xl text-white mb-1"
-                style={{ fontFamily: "'Noto Serif JP', serif" }}
+                style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                藍
+                蓝染
               </h2>
               <p className="text-xs text-aiiro-muted tracking-widest">AIIRO BLOG</p>
             </div>
@@ -74,7 +74,7 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
                     className="flex items-center gap-4 px-4 py-3 rounded-lg text-aiiro-muted hover:text-aiiro-accent hover:bg-aiiro-accent/10 transition-all"
                   >
                     <Icon size={18} />
-                    <span className="font-serif-jp">{item.label}</span>
+                    <span>{item.label}</span>
                   </Link>
                 );
               })}
@@ -83,7 +83,7 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
             {categories.length > 0 && (
               <div className="mb-8">
                 <p className="text-xs text-aiiro-muted tracking-widest mb-4 px-4">
-                  分類
+                  分类
                 </p>
                 <div className="space-y-1">
                   {categories.slice(0, 6).map((cat) => (
@@ -93,7 +93,7 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center justify-between px-4 py-2 rounded-lg text-sm text-aiiro-muted hover:text-aiiro-accent hover:bg-aiiro-accent/5 transition-all"
                     >
-                      <span className="font-serif-jp">{cat.name}</span>
+                      <span>{cat.name}</span>
                       <span className="text-xs text-aiiro-muted/60 tabular-nums">
                         {cat.articleCount}
                       </span>
@@ -110,7 +110,7 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
                 className="flex items-center gap-4 px-4 py-3 rounded-lg text-aiiro-muted hover:text-aiiro-accent transition-all"
               >
                 <Settings size={18} />
-                <span className="font-serif-jp">管理</span>
+                <span>管理后台</span>
               </Link>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
                   <Icon size={18} />
                 </div>
                 <span
-                  className="writing-vertical text-xs font-serif-jp tracking-wider group-hover:translate-y-1 transition-transform"
+                  className="writing-vertical text-xs tracking-wider group-hover:translate-y-1 transition-transform"
                   style={{ fontFamily: "'Noto Serif JP', serif" }}
                 >
                   {item.label}
@@ -163,7 +163,7 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
             <Link
               key={cat.id}
               to={`/?category=${cat.id}`}
-              className="group writing-vertical text-xs font-serif-jp text-aiiro-muted hover:text-aiiro-accent transition-colors duration-300 py-1"
+              className="group writing-vertical text-xs text-aiiro-muted hover:text-aiiro-accent transition-colors duration-300 py-1"
               title={`${cat.name} (${cat.articleCount})`}
               style={{ fontFamily: "'Noto Serif JP', serif" }}
             >
@@ -179,13 +179,13 @@ export default function VerticalSidebar({ categories = [] }: VerticalSidebarProp
         <Link
           to="/login"
           className="group flex flex-col items-center gap-1.5 text-aiiro-muted hover:text-aiiro-accent transition-all duration-300"
-          title="管理後台"
+          title="管理后台"
         >
           <div className="p-2 rounded-lg group-hover:bg-aiiro-accent/10 transition-colors">
             <Settings size={16} />
           </div>
           <span
-            className="writing-vertical text-xs font-serif-jp tracking-wider"
+            className="writing-vertical text-xs tracking-wider"
             style={{ fontFamily: "'Noto Serif JP', serif" }}
           >
             管理

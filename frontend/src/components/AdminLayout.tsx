@@ -23,9 +23,9 @@ export default function AdminLayout() {
   };
 
   const navItems = [
-    { path: '/admin', label: '概覽', icon: LayoutDashboard },
-    { path: '/admin/articles', label: '記事管理', icon: FileText },
-    { path: '/admin/categories', label: '分類標籤', icon: Tags },
+    { path: '/admin', label: '概览', icon: LayoutDashboard },
+    { path: '/admin/articles', label: '文章管理', icon: FileText },
+    { path: '/admin/categories', label: '分类标签', icon: Tags },
     { path: '/admin/drafts', label: '草稿箱', icon: FolderOpen },
   ];
 
@@ -80,14 +80,7 @@ export default function AdminLayout() {
                 }
               >
                 <Icon size={18} />
-                {sidebarOpen && (
-                  <span
-                    className="font-serif-jp text-sm"
-                    style={{ fontFamily: "'Noto Serif JP', serif" }}
-                  >
-                    {item.label}
-                  </span>
-                )}
+                {sidebarOpen && <span className="text-sm">{item.label}</span>}
               </NavLink>
             );
           })}
@@ -99,14 +92,7 @@ export default function AdminLayout() {
             className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-aiiro-muted hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
           >
             <LogOut size={18} />
-            {sidebarOpen && (
-              <span
-                className="font-serif-jp text-sm"
-                style={{ fontFamily: "'Noto Serif JP', serif" }}
-              >
-                退出登錄
-              </span>
-            )}
+            {sidebarOpen && <span className="text-sm">退出登录</span>}
           </button>
         </div>
       </aside>

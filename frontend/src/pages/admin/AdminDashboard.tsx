@@ -85,7 +85,7 @@ function StatCard({ data, index }: { data: StatCardData; index: number }) {
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-aiiro-muted text-sm mb-1 font-serif-jp" style={{ fontFamily: "'Noto Serif JP', serif" }}>{data.title}</p>
+          <p className="text-aiiro-muted text-sm mb-1">{data.title}</p>
           <p
             className="text-3xl font-bold text-white mt-2 font-serif-display"
             style={{ fontFamily: "'Playfair Display', serif" }}
@@ -240,12 +240,12 @@ export default function AdminDashboard() {
       <div>
         <h1
           className="text-3xl font-bold text-white mb-2 font-serif-display"
-          style={{ fontFamily: "'Playfair Display', 'Noto Serif JP', serif" }}
+          style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          概覽
+          概览
         </h1>
-        <p className="text-aiiro-muted font-serif-jp" style={{ fontFamily: "'Noto Serif JP', serif" }}>
-          おかえりなさい、ブログのデータ概要です
+        <p className="text-aiiro-muted">
+          欢迎回来，这是您的博客数据概览
         </p>
       </div>
 
@@ -271,7 +271,7 @@ export default function AdminDashboard() {
             className="text-xl font-bold text-white font-serif-display"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            データ傾向
+            数据趋势
           </h2>
           <div className="flex flex-wrap items-center gap-3">
             <select
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
             className="text-xl font-bold text-white font-serif-display"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            最新記事
+            最新文章
           </h2>
           <span className="text-sm text-aiiro-muted">共 5 条</span>
         </div>
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
           </div>
         ) : articles.length === 0 ? (
           <div className="text-center py-12 text-aiiro-muted">
-            <p className="text-lg">記事がありません</p>
+            <p className="text-lg">暂无文章</p>
           </div>
         ) : (
           <div className="space-y-1">

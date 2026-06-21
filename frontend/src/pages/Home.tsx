@@ -115,18 +115,13 @@ export default function Home() {
                 <div className="absolute -left-8 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-aiiro-accent/40 to-transparent hidden md:block" />
 
                 <div className="flex items-center gap-4 mb-6">
-                  <HankoAvatar size="md" text="藍" />
+                  <HankoAvatar size="md" text="蓝" />
                   <div>
-                    <p
-                      className="text-xs tracking-[0.3em] text-aiiro-muted uppercase font-sans"
-                    >
-                      AIIRO · 藍染
+                    <p className="text-xs tracking-[0.3em] text-aiiro-muted uppercase font-sans">
+                      AIIRO · 蓝染
                     </p>
-                    <p
-                      className="text-sm text-aiiro-muted/70 font-serif-jp mt-0.5"
-                      style={{ fontFamily: "'Noto Serif JP', serif" }}
-                    >
-                      墨染の文、藍より青し
+                    <p className="text-sm text-aiiro-muted/70 mt-0.5">
+                      墨染成文，青出于蓝
                     </p>
                   </div>
                 </div>
@@ -160,11 +155,8 @@ export default function Home() {
                     <span className="text-3xl font-bold text-white font-serif-display">
                       {articles.length}
                     </span>
-                    <span
-                      className="text-xs text-aiiro-muted tracking-wider font-serif-jp"
-                      style={{ fontFamily: "'Noto Serif JP', serif" }}
-                    >
-                      篇記事
+                    <span className="text-xs text-aiiro-muted tracking-wider">
+                      篇文章
                     </span>
                   </div>
                   <div className="w-px h-10 bg-aiiro-border" />
@@ -172,11 +164,8 @@ export default function Home() {
                     <span className="text-3xl font-bold text-aiiro-accent font-serif-display">
                       {articles.reduce((sum, a) => sum + a.likeCount, 0)}
                     </span>
-                    <span
-                      className="text-xs text-aiiro-muted tracking-wider font-serif-jp"
-                      style={{ fontFamily: "'Noto Serif JP', serif" }}
-                    >
-                      いいね
+                    <span className="text-xs text-aiiro-muted tracking-wider">
+                      次点赞
                     </span>
                   </div>
                 </div>
@@ -184,7 +173,7 @@ export default function Home() {
                 <div className="flex items-center gap-2 text-xs text-aiiro-muted">
                   <Calendar size={14} />
                   <span>
-                    最終更新:{' '}
+                    最后更新:{' '}
                     {articles[0]
                       ? formatDate(articles[0].publishedAt || articles[0].createdAt)
                       : '—'}
@@ -197,8 +186,7 @@ export default function Home() {
               {categories.map((cat) => (
                 <span
                   key={cat.id}
-                  className="px-4 py-1.5 rounded-full text-sm glass-card text-aiiro-light hover:text-aiiro-accent transition-colors cursor-pointer font-serif-jp"
-                  style={{ fontFamily: "'Noto Serif JP', serif" }}
+                  className="px-4 py-1.5 rounded-full text-sm glass-card text-aiiro-light hover:text-aiiro-accent transition-colors cursor-pointer"
                 >
                   <TagIcon size={12} className="inline mr-1.5 -mt-0.5" />
                   {cat.name}
@@ -220,14 +208,11 @@ export default function Home() {
                 className="font-serif-display text-2xl md:text-3xl font-bold text-white"
                 style={{ fontFamily: "'Playfair Display', 'Noto Serif JP', serif" }}
               >
-                最新記事
+                最新文章
               </h2>
               <div className="flex-1 h-px bg-gradient-to-r from-aiiro-border/60 to-transparent" />
-              <span
-                className="text-xs text-aiiro-muted tracking-widest font-serif-jp"
-                style={{ fontFamily: "'Noto Serif JP', serif" }}
-              >
-                さいしんきじ
+              <span className="text-xs text-aiiro-muted tracking-widest font-serif-display italic">
+                Latest Posts
               </span>
             </div>
 
@@ -260,11 +245,8 @@ export default function Home() {
                       無
                     </span>
                   </div>
-                  <p
-                    className="text-aiiro-muted text-lg font-serif-jp"
-                    style={{ fontFamily: "'Noto Serif JP', serif" }}
-                  >
-                    まだ記事はありません
+                  <p className="text-aiiro-muted text-lg">
+                    暂无文章
                   </p>
                   <p className="text-aiiro-muted/60 text-sm mt-2">敬请期待...</p>
                 </div>
@@ -283,12 +265,7 @@ export default function Home() {
                   onClick={() => loadArticles(page + 1)}
                   className="group glass-card px-8 py-4 rounded-xl text-aiiro-light hover:text-aiiro-accent transition-all duration-300 flex items-center gap-3"
                 >
-                  <span
-                    className="font-serif-jp tracking-wider"
-                    style={{ fontFamily: "'Noto Serif JP', serif" }}
-                  >
-                    続きを読む
-                  </span>
+                  <span>加载更多</span>
                   <Heart
                     size={16}
                     className="group-hover:text-aiiro-accent transition-colors"
@@ -309,20 +286,17 @@ export default function Home() {
                     className="font-serif-display text-xl font-bold text-white"
                     style={{ fontFamily: "'Playfair Display', serif" }}
                   >
-                    Aiiro Blog
+                    蓝染博客
                   </p>
                   <p className="text-xs text-aiiro-muted tracking-widest uppercase">
-                    藍染 · est. 2026
+                    AIIRO BLOG · est. 2026
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col md:items-end gap-2">
-                <p
-                  className="text-sm text-aiiro-muted font-serif-jp"
-                  style={{ fontFamily: "'Noto Serif JP', serif" }}
-                >
-                  一期一会 ·  Ichigo Ichie
+                <p className="text-sm text-aiiro-muted">
+                  一期一会 · 每一次相遇都是独一无二的
                 </p>
                 <p className="text-xs text-aiiro-muted/60">
                   © 2026 All rights reserved. Crafted with indigo & intention.

@@ -21,7 +21,7 @@ function NotFound() {
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none z-0" />
       <div className="relative z-10 text-center">
         <div className="flex justify-center mb-8">
-          <HankoAvatar size="xl" text="無" />
+          <HankoAvatar size="xl" text="无" />
         </div>
         <h1
           className="text-7xl md:text-9xl font-bold text-gradient mb-4 font-serif-display"
@@ -29,26 +29,18 @@ function NotFound() {
         >
           404
         </h1>
-        <p
-          className="text-xl text-aiiro-muted mb-2 font-serif-jp"
-          style={{ fontFamily: "'Noto Serif JP', serif" }}
-        >
-          ページが見つかりません
+        <p className="text-xl text-aiiro-muted mb-2">
+          页面未找到
         </p>
         <p className="text-aiiro-muted/60 mb-10">
-          The page you are looking for does not exist.
+          您访问的页面不存在或已被移除。
         </p>
         <Link
           to="/"
           className="inline-flex items-center gap-2 px-8 py-4 glass-card rounded-xl text-aiiro-light hover:text-aiiro-accent transition-colors group"
         >
           <HomeIcon size={18} className="group-hover:-translate-x-0.5 transition-transform" />
-          <span
-            className="font-serif-jp tracking-wider"
-            style={{ fontFamily: "'Noto Serif JP', serif" }}
-          >
-            ホームへ戻る
-          </span>
+          <span>返回首页</span>
         </Link>
       </div>
     </div>
