@@ -3,6 +3,8 @@ import type { ApiResponse } from '@/types';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
+export const BACKEND_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '');
+
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,

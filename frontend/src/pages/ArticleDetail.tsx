@@ -18,6 +18,7 @@ import type { Article, LikeResponse } from '@/types';
 import ParticleBackground from '@/components/ParticleBackground';
 import VerticalSidebar from '@/components/VerticalSidebar';
 import HankoAvatar from '@/components/HankoAvatar';
+import { resolveImageUrl } from '@/lib/utils';
 
 export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
@@ -270,6 +271,26 @@ export default function ArticleDetail() {
                         </code>
                       );
                     },
+                    img: ({ src, alt }) => (
+                      <span className="block my-8">
+                        <img
+                          src={resolveImageUrl(src as string)}
+                          alt={alt}
+                          className="rounded-xl max-w-full mx-auto border border-aiiro-border/50"
+                          loading="lazy"
+                        />
+                        {alt && (
+                          <span className="block text-center text-xs text-aiiro-muted mt-3">
+                            {alt}
+                          </span>
+                        )}
+                      </span>
+                    ),
+                    p: ({ children }) => (
+                      <p className="text-aiiro-light leading-relaxed mb-6 text-[1.05rem]">
+                        {children}
+                      </p>
+                    ),
                   }}
                 >
                   {article.content}

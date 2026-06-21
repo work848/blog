@@ -24,6 +24,7 @@ import {
 import { getCategories } from '@/api/category';
 import { getTags } from '@/api/tag';
 import type { Category, Tag, Article } from '@/types';
+import { resolveImageUrl } from '@/lib/utils';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -35,6 +36,7 @@ export default function ArticleEdit() {
   const isEditMode = !!articleId;
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<number | ''>('');
@@ -42,6 +44,8 @@ export default function ArticleEdit() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isTextAreaDragOver, setIsTextAreaDragOver] = useState(false);
+  const [isInsertButtonDragOver, setIsInsertButtonDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -66,6 +70,8 @@ export default function ArticleEdit() {
           setContent(article.content);
           setCategoryId(article.categoryId);
           setSelectedTagIds(article.tags.map((tag) => tag.id));
+          const len = article.content.length;
+          selectionRef.current = { start: len, end: len };
         }
       } catch (err) {
         console.error('加载数据失败:', err);
@@ -78,41 +84,46 @@ export default function ArticleEdit() {
     loadData();
   }, [isEditMode, articleId]);
 
-  const insertAtCursor = useCallback(
-    (text: string) => {
-      const textarea = textareaRef.current;
-      if (!textarea) {
-        setContent((prev) => prev + text);
-        return;
-      }
-
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const before = content.substring(0, start);
-      const after = content.substring(end);
-
-      const newContent = before + text + after;
-      setContent(newContent);
-
-      requestAnimationFrame(() => {
-        textarea.focus();
-        const newPos = start + text.length;
-        textarea.setSelectionRange(newPos, newPos);
-      });
-    },
-    [content]
-  );
-
-  const handleImageUpload = async (file: File) => {
-    if (!file) return;
-
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError('不支持的图片格式，仅支持 JPG/PNG/GIF/WEBP/BMP');
-      return;
+  const syncSelection = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      selectionRef.current = { start: textarea.selectionStart, end: textarea.selectionEnd };
     }
+  }, []);
 
+  const insertAtCursor = useCallback((text: string) => {
+    const { start, end } = selectionRef.current;
+    setContent((prev) => {
+      const before = prev.substring(0, start);
+      const after = prev.substring(end);
+      return before + text + after;
+    });
+    const newPos = start + text.length;
+    selectionRef.current = { start: newPos, end: newPos };
+    requestAnimationFrame(() => {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(newPos, newPos);
+      }
+    });
+  }, []);
+
+  const uploadSingleImage = async (file: File): Promise<string> => {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      throw new Error(`"${file.name}" 不支持的图片格式，仅支持 JPG/PNG/GIF/WEBP/BMP`);
+    }
     if (file.size > MAX_IMAGE_SIZE) {
-      setError('图片大小不能超过 5MB');
+      throw new Error(`"${file.name}" 图片大小不能超过 5MB`);
+    }
+    const result = await uploadImage(file);
+    return `![${file.name}](${result.url})`;
+  };
+
+  const handleImageFiles = async (files: FileList | File[]) => {
+    const imageFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (imageFiles.length === 0) {
+      setError('请上传图片文件');
       return;
     }
 
@@ -120,9 +131,19 @@ export default function ArticleEdit() {
     setError('');
 
     try {
-      const result = await uploadImage(file);
-      const markdown = `\n![${file.name}](${result.url})\n`;
-      insertAtCursor(markdown);
+      const markdownParts: string[] = [];
+      for (const file of imageFiles) {
+        try {
+          const md = await uploadSingleImage(file);
+          markdownParts.push(md);
+        } catch (err: any) {
+          setError(err.message || '部分图片上传失败');
+        }
+      }
+      if (markdownParts.length > 0) {
+        const combined = '\n' + markdownParts.join('\n\n') + '\n';
+        insertAtCursor(combined);
+      }
     } catch (err) {
       console.error('图片上传失败:', err);
       setError('图片上传失败，请重试');
@@ -132,9 +153,9 @@ export default function ArticleEdit() {
   };
 
   const handleImageFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await handleImageUpload(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      await handleImageFiles(files);
       e.target.value = '';
     }
   };
@@ -162,13 +183,8 @@ export default function ArticleEdit() {
 
       const file = files[0];
 
-      if (file.type.startsWith('image/')) {
-        await handleImageUpload(file);
-        return;
-      }
-
       if (!file.name.endsWith('.txt')) {
-        setError('请上传 .txt 格式的文件或图片文件');
+        setError('请上传 .txt 格式的文件，图片请在下方内容编辑区拖拽或点击插入');
         return;
       }
 
@@ -188,6 +204,81 @@ export default function ArticleEdit() {
     },
     []
   );
+
+  const handleTextAreaDragOver = (e: React.DragEvent) => {
+    if (e.dataTransfer.types.includes('Files')) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsTextAreaDragOver(true);
+    }
+  };
+
+  const handleTextAreaDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsTextAreaDragOver(false);
+  };
+
+  const getCaretPositionFromEvent = (e: React.DragEvent): number | null => {
+    const textarea = textareaRef.current;
+    if (!textarea) return null;
+    const rect = textarea.getBoundingClientRect();
+    const pointX = e.clientX;
+    const pointY = e.clientY;
+    if (document.caretPositionFromPoint) {
+      const range: any = document.caretPositionFromPoint(pointX, pointY);
+      if (range && range.offsetNode === textarea) {
+        return range.offset;
+      }
+    }
+    if ((document as any).caretRangeFromPoint) {
+      const range: any = (document as any).caretRangeFromPoint(pointX, pointY);
+      if (range && range.startContainer === textarea) {
+        return range.startOffset;
+      }
+    }
+    return null;
+  };
+
+  const handleTextAreaDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsTextAreaDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length === 0) return;
+
+    const dropPos = getCaretPositionFromEvent(e);
+    if (dropPos !== null) {
+      selectionRef.current = { start: dropPos, end: dropPos };
+    }
+
+    await handleImageFiles(files);
+  };
+
+  const handleInsertButtonDragOver = (e: React.DragEvent) => {
+    if (e.dataTransfer.types.includes('Files')) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsInsertButtonDragOver(true);
+    }
+  };
+
+  const handleInsertButtonDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsInsertButtonDragOver(false);
+  };
+
+  const handleInsertButtonDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsInsertButtonDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length === 0) return;
+    await handleImageFiles(files);
+  };
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -350,13 +441,6 @@ export default function ArticleEdit() {
             className="hidden"
             id="file-upload"
           />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageFileInput}
-            className="hidden"
-            id="image-upload"
-          />
           <div className="flex flex-col items-center gap-3">
             {isUploading || isImageUploading ? (
               <Loader2 className="animate-spin text-[#ff6b35]" size={40} />
@@ -372,14 +456,12 @@ export default function ArticleEdit() {
               <p className="text-lg font-medium text-white">
                 {isUploading
                   ? '正在解析文件...'
-                  : isImageUploading
-                  ? '正在上传图片...'
                   : isDragOver
                   ? '松开鼠标上传文件'
                   : '拖拽文件到此处上传'}
               </p>
               <p className="text-sm text-gray-400 mt-1">
-                支持 .txt 文本文件（自动解析标题和内容）和图片文件
+                支持 .txt 文本文件（自动解析标题和内容），图片上传请使用下方内容编辑区
               </p>
             </div>
             <div className="flex items-center gap-4 mt-2">
@@ -390,17 +472,10 @@ export default function ArticleEdit() {
                 <FileText size={16} />
                 上传 TXT 文件
               </label>
-              <label
-                htmlFor="image-upload"
-                className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-[#ff6b35]/10 hover:bg-[#ff6b35]/20 border border-[#ff6b35]/30 rounded-lg text-sm text-[#ff6b35] hover:text-[#ff8535] transition-all"
-              >
-                <ImageIcon size={16} />
-                上传图片
-              </label>
             </div>
             {!isUploading && !isImageUploading && (
               <div className="text-xs text-gray-500 mt-1">
-                图片支持 JPG/PNG/GIF/WEBP/BMP，最大 5MB
+                图片上传：支持 JPG/PNG/GIF/WEBP/BMP，最大 5MB，请在内容编辑区使用「插入图片」按钮或直接拖拽图片到编辑框
               </div>
             )}
           </div>
@@ -497,27 +572,56 @@ export default function ArticleEdit() {
                 </label>
                 <label
                   htmlFor="image-inline-upload"
-                  className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-xs text-gray-400 hover:text-white transition-all"
+                  onDragOver={handleInsertButtonDragOver}
+                  onDragLeave={handleInsertButtonDragLeave}
+                  onDrop={handleInsertButtonDrop}
+                  className={`cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-md text-xs transition-all ${
+                    isInsertButtonDragOver
+                      ? 'bg-[#ff6b35]/20 border-[#ff6b35] text-[#ff6b35]'
+                      : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-400 hover:text-white'
+                  }`}
                 >
                   <ImageIcon size={14} />
                   插入图片
+                  <span className="text-[10px] text-gray-500">(可多选 / 可拖拽至此)</span>
                 </label>
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handleImageFileInput}
                   className="hidden"
                   id="image-inline-upload"
                 />
               </div>
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="请输入文章内容，支持 Markdown 语法..."
-                rows={20}
-                className="w-full px-4 py-3 bg-[#121212] border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#ff6b35] focus:ring-1 focus:ring-[#ff6b35] transition-all resize-none font-mono text-sm leading-relaxed"
-              />
+              <div className="relative">
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onSelect={syncSelection}
+                  onClick={syncSelection}
+                  onKeyUp={syncSelection}
+                  onDragOver={handleTextAreaDragOver}
+                  onDragLeave={handleTextAreaDragLeave}
+                  onDrop={handleTextAreaDrop}
+                  placeholder="请输入文章内容，支持 Markdown 语法，可直接拖拽图片到此处插入..."
+                  rows={20}
+                  className={`w-full px-4 py-3 bg-[#121212] border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-1 transition-all resize-none font-mono text-sm leading-relaxed ${
+                    isTextAreaDragOver
+                      ? 'border-[#ff6b35] ring-1 ring-[#ff6b35] bg-[#ff6b35]/5'
+                      : 'border-white/10 focus:border-[#ff6b35] focus:ring-[#ff6b35]'
+                  }`}
+                />
+                {isTextAreaDragOver && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-lg bg-[#ff6b35]/10 border-2 border-dashed border-[#ff6b35]">
+                    <div className="flex items-center gap-2 text-[#ff6b35] font-medium">
+                      <ImageIcon size={20} />
+                      松开鼠标插入图片到当前位置
+                    </div>
+                  </div>
+                )}
+              </div>
               {isImageUploading && (
                 <div className="mt-2 flex items-center gap-2 text-xs text-[#ff6b35]">
                   <Loader2 className="animate-spin" size={14} />
@@ -634,7 +738,7 @@ export default function ArticleEdit() {
                   },
                   img: ({ src, alt }) => (
                     <img
-                      src={src}
+                      src={resolveImageUrl(src as string)}
                       alt={alt}
                       className="rounded-lg my-6 max-w-full"
                     />
