@@ -1,0 +1,127 @@
+########################################
+# General
+########################################
+
+.DS_Store
+Thumbs.db
+*.log
+logs/
+*.tmp
+*.temp
+
+########################################
+# IDE
+########################################
+
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+########################################
+# Frontend (React + TypeScript)
+########################################
+
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.turbo/
+frontend/.next/
+frontend/out/
+frontend/coverage/
+
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+########################################
+# Backend (Java / Spring Boot / MyBatis)
+########################################
+
+backend/target/
+backend/build/
+backend/out/
+backend/bin/
+
+# Maven
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+backend/.gradle/
+
+########################################
+# Java
+########################################
+
+*.class
+*.jar
+*.war
+*.ear
+
+########################################
+# SQLite
+########################################
+
+backend/*.db
+backend/*.db-journal
+backend/*.sqlite
+backend/*.sqlite3
+backend/*.db-wal
+backend/*.db-shm
+
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+########################################
+# Spring Boot
+########################################
+
+backend/logs/
+backend/log/
+backend/*.log
+
+########################################
+# JWT / Secret Keys
+########################################
+
+backend/.env
+backend/application-local.yml
+backend/application-dev.yml
+backend/application-prod.yml
+
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-dev.yml
+backend/src/main/resources/application-prod.yml
+
+########################################
+# Upload Files
+########################################
+
+backend/uploads/
+backend/upload/
+
+########################################
+# Test Reports
+########################################
+
+coverage/
+reports/
+test-output/
+
+########################################
+# OS
+########################################
+
+Desktop.ini
+ehthumbs.db

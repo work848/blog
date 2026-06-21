@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.LikeRecordMapper">
+
+    <resultMap id="likeRecordResultMap" type="com.blog.entity.LikeRecord">
+        <id property="id" column="id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="ipAddress" column="ip_address"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.blog.entity.LikeRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO like_record (article_id, ip_address, created_at)
+        VALUES (#{articleId}, #{ipAddress}, #{createdAt})
+    </insert>
+
+    <select id="findByArticleIdAndIp" resultMap="likeRecordResultMap">
+        SELECT * FROM like_record
+        WHERE article_id = #{articleId} AND ip_address = #{ipAddress}
+    </select>
+
+    <delete id="deleteByArticleId">
+        DELETE FROM like_record WHERE article_id = #{articleId}
+    </delete>
+</mapper>

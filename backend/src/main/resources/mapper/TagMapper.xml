@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.TagMapper">
+
+    <resultMap id="tagResultMap" type="com.blog.entity.Tag">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.blog.entity.Tag" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tag (name, created_at)
+        VALUES (#{name}, #{createdAt})
+    </insert>
+
+    <update id="update" parameterType="com.blog.entity.Tag">
+        UPDATE tag SET name = #{name} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM tag WHERE id = #{id}
+    </delete>
+
+    <select id="findById" resultMap="tagResultMap">
+        SELECT * FROM tag WHERE id = #{id}
+    </select>
+
+    <select id="findByName" resultMap="tagResultMap">
+        SELECT * FROM tag WHERE name = #{name}
+    </select>
+
+    <select id="findAll" resultMap="tagResultMap">
+        SELECT * FROM tag ORDER BY created_at
+    </select>
+
+    <select id="findByArticleId" resultMap="tagResultMap">
+        SELECT t.* FROM tag t
+        INNER JOIN article_tag at ON t.id = at.tag_id
+        WHERE at.article_id = #{articleId}
+    </select>
+</mapper>
