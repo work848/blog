@@ -40,7 +40,7 @@ axiosInstance.interceptors.response.use(
 
 export async function request<T>(config: AxiosRequestConfig): Promise<T> {
   try {
-    const response = await axiosInstance.request<ApiResponse<T>>(config);
+    const response = (await axiosInstance.request<any, ApiResponse<T>>(config)) as unknown as ApiResponse<T>;
     if (response.code === 200) {
       return response.data;
     }

@@ -90,3 +90,23 @@ export interface BatchPublishRequest {
 export interface BatchDeleteRequest {
   articleIds: number[];
 }
+
+export interface DashboardStats {
+  totalArticles: number;
+  publishedArticles: number;
+  draftArticles: number;
+  totalLikes: number;
+}
+
+export interface StatsTrend {
+  date: string;
+  totalArticles: number;
+  publishedArticles: number;
+  likeCount: number;
+}
+
+export interface ImageUploadResponse {
+  url: string;
+  filename: string;
+  size: number;
+}

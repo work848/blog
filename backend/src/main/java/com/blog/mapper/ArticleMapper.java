@@ -1,5 +1,6 @@
 package com.blog.mapper;
 
+import com.blog.dto.StatsTrendVO;
 import com.blog.entity.Article;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -19,5 +20,9 @@ public interface ArticleMapper {
     long countDrafts();
     void batchPublish(@Param("ids") List<Long> ids);
     void batchDelete(@Param("ids") List<Long> ids);
+    void batchWithdraw(@Param("ids") List<Long> ids);
     void incrementLikeCount(@Param("id") Long id);
+    long countTotal();
+    int sumLikeCount();
+    List<StatsTrendVO> getArticleTrend(@Param("days") int days);
 }

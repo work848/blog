@@ -173,6 +173,26 @@ public class ArticleService {
     }
 
     @Transactional
+    public void withdrawArticle(Long id) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new IllegalArgumentException("文章不存在");
+        }
+        if (!"PUBLISHED".equals(article.getStatus())) {
+            throw new IllegalArgumentException("只有已发布的文章才能撤回");
+        }
+        articleMapper.batchWithdraw(java.util.Collections.singletonList(id));
+    }
+
+    @Transactional
+    public void batchWithdraw(List<Long> articleIds) {
+        if (articleIds == null || articleIds.isEmpty()) {
+            return;
+        }
+        articleMapper.batchWithdraw(articleIds);
+    }
+
+    @Transactional
     public void batchDelete(List<Long> articleIds) {
         if (articleIds == null || articleIds.isEmpty()) {
             return;
@@ -232,5 +252,18 @@ public class ArticleService {
         vo.setTags(tagVOs);
 
         return vo;
+    }
+
+    public DashboardStatsVO getDashboardStats() {
+        DashboardStatsVO stats = new DashboardStatsVO();
+        stats.setTotalArticles(articleMapper.countTotal());
+        stats.setPublishedArticles(articleMapper.countPublished());
+        stats.setDraftArticles(articleMapper.countDrafts());
+        stats.setTotalLikes(articleMapper.sumLikeCount());
+        return stats;
+    }
+
+    public List<StatsTrendVO> getStatsTrend(int days) {
+        return articleMapper.getArticleTrend(days);
     }
 }

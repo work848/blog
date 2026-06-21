@@ -92,6 +92,17 @@
         AND status = 'DRAFT'
     </update>
 
+    <update id="batchWithdraw">
+        UPDATE article
+        SET status = 'DRAFT',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND status = 'PUBLISHED'
+    </update>
+
     <delete id="batchDelete">
         DELETE FROM article WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -102,4 +113,45 @@
     <update id="incrementLikeCount">
         UPDATE article SET like_count = like_count + 1 WHERE id = #{id}
     </update>
+
+    <select id="countTotal" resultType="long">
+        SELECT COUNT(*) FROM article
+    </select>
+
+    <select id="sumLikeCount" resultType="int">
+        SELECT COALESCE(SUM(like_count), 0) FROM article
+    </select>
+
+    <resultMap id="statsTrendMap" type="com.blog.dto.StatsTrendVO">
+        <result property="date" column="date"/>
+        <result property="totalArticles" column="total_articles"/>
+        <result property="publishedArticles" column="published_articles"/>
+        <result property="likeCount" column="like_count"/>
+    </resultMap>
+
+    <select id="getArticleTrend" resultMap="statsTrendMap">
+        <![CDATA[
+        WITH date_range AS (
+            SELECT date('now', 'localtime', '-' || (n-1) || ' day') AS d
+            FROM (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                  UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+                  UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
+                  UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16
+                  UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20
+                  UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24
+                  UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28
+                  UNION ALL SELECT 29 UNION ALL SELECT 30)
+            WHERE n <= #{days}
+        )
+        SELECT
+            dr.d AS date,
+            (SELECT COUNT(*) FROM article a WHERE date(a.created_at, 'localtime') <= dr.d) AS total_articles,
+            (SELECT COUNT(*) FROM article a WHERE a.status = 'PUBLISHED'
+             AND date(a.published_at, 'localtime') <= dr.d) AS published_articles,
+            COALESCE((SELECT SUM(a.like_count) FROM article a
+             WHERE date(a.created_at, 'localtime') <= dr.d), 0) AS like_count
+        FROM date_range dr
+        ORDER BY dr.d ASC
+        ]]>
+    </select>
 </mapper>

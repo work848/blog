@@ -11,8 +11,10 @@ import {
   X,
   Loader2,
   AlertTriangle,
+  Undo2,
+  Send,
 } from 'lucide-react';
-import { getAllArticles, deleteArticle, batchDelete } from '@/api/article';
+import { getAllArticles, deleteArticle, batchDelete, withdrawArticle, batchWithdraw, batchPublish } from '@/api/article';
 import type { Article } from '@/types';
 
 type StatusFilter = 'ALL' | 'PUBLISHED' | 'DRAFT';
@@ -30,6 +32,11 @@ export default function ArticleList() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'batch'; id?: number } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
+  const [withdrawTarget, setWithdrawTarget] = useState<{ type: 'single' | 'batch'; id?: number } | null>(null);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   const loadArticles = async () => {
     setLoading(true);
@@ -119,6 +126,65 @@ export default function ArticleList() {
     setDeleteTarget(null);
   };
 
+  const handleWithdrawClick = (id: number) => {
+    setWithdrawTarget({ type: 'single', id });
+    setShowWithdrawConfirm(true);
+  };
+
+  const handleBatchWithdrawClick = () => {
+    if (selectedIds.size === 0) return;
+    setWithdrawTarget({ type: 'batch' });
+    setShowWithdrawConfirm(true);
+  };
+
+  const handleConfirmWithdraw = async () => {
+    if (!withdrawTarget) return;
+    setWithdrawing(true);
+    try {
+      if (withdrawTarget.type === 'single' && withdrawTarget.id !== undefined) {
+        await withdrawArticle(withdrawTarget.id);
+      } else if (withdrawTarget.type === 'batch') {
+        await batchWithdraw(Array.from(selectedIds));
+      }
+      setSelectedIds(new Set());
+      loadArticles();
+    } catch (error) {
+      console.error('撤回失败:', error);
+    } finally {
+      setWithdrawing(false);
+      setShowWithdrawConfirm(false);
+      setWithdrawTarget(null);
+    }
+  };
+
+  const handleCancelWithdraw = () => {
+    setShowWithdrawConfirm(false);
+    setWithdrawTarget(null);
+  };
+
+  const handleBatchPublishClick = () => {
+    if (selectedIds.size === 0) return;
+    setShowPublishConfirm(true);
+  };
+
+  const handleConfirmPublish = async () => {
+    setPublishing(true);
+    try {
+      await batchPublish(Array.from(selectedIds));
+      setSelectedIds(new Set());
+      loadArticles();
+    } catch (error) {
+      console.error('发布失败:', error);
+    } finally {
+      setPublishing(false);
+      setShowPublishConfirm(false);
+    }
+  };
+
+  const handleCancelPublish = () => {
+    setShowPublishConfirm(false);
+  };
+
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
@@ -185,13 +251,29 @@ export default function ArticleList() {
           </div>
 
           {selectedIds.size > 0 && (
-            <button
-              onClick={handleBatchDeleteClick}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-all duration-200 font-medium"
-            >
-              <Trash2 size={18} />
-              批量删除 ({selectedIds.size})
-            </button>
+            <>
+              <button
+                onClick={handleBatchPublishClick}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-all duration-200 font-medium"
+              >
+                <Send size={18} />
+                批量发布 ({selectedIds.size})
+              </button>
+              <button
+                onClick={handleBatchWithdrawClick}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg transition-all duration-200 font-medium"
+              >
+                <Undo2 size={18} />
+                批量撤回 ({selectedIds.size})
+              </button>
+              <button
+                onClick={handleBatchDeleteClick}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-all duration-200 font-medium"
+              >
+                <Trash2 size={18} />
+                批量删除 ({selectedIds.size})
+              </button>
+            </>
           )}
         </div>
 
@@ -333,6 +415,15 @@ export default function ArticleList() {
                         >
                           <Edit3 size={16} />
                         </button>
+                        {article.status === 'PUBLISHED' && (
+                          <button
+                            onClick={() => handleWithdrawClick(article.id)}
+                            className="p-2 text-gray-400 hover:text-yellow-400 hover:bg-yellow-500/10 rounded-lg transition-all duration-200"
+                            title="撤回为草稿"
+                          >
+                            <Undo2 size={16} />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDeleteClick(article.id)}
                           className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200"
@@ -434,6 +525,80 @@ export default function ArticleList() {
               >
                 {deleting && <Loader2 size={16} className="animate-spin" />}
                 {deleting ? '删除中...' : '确认删除'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showWithdrawConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl animate-in">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                <Undo2 size={24} className="text-yellow-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">确认撤回</h3>
+                <p className="text-gray-400 text-sm mt-1">
+                  {withdrawTarget?.type === 'single'
+                    ? '确定要将这篇文章撤回为草稿吗？'
+                    : `确定要将选中的 ${selectedIds.size} 篇文章撤回为草稿吗？`}
+                </p>
+              </div>
+            </div>
+            <p className="text-gray-500 text-sm mb-6 pl-16">撤回后文章将不再对公众可见，您可以稍后重新发布。</p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={handleCancelWithdraw}
+                disabled={withdrawing}
+                className="px-5 py-2.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200 disabled:opacity-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleConfirmWithdraw}
+                disabled={withdrawing}
+                className="px-5 py-2.5 rounded-lg bg-yellow-500 hover:bg-yellow-500/90 text-white font-medium transition-all duration-200 disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {withdrawing && <Loader2 size={16} className="animate-spin" />}
+                {withdrawing ? '撤回中...' : '确认撤回'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPublishConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl animate-in">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                <Send size={24} className="text-green-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">确认发布</h3>
+                <p className="text-gray-400 text-sm mt-1">
+                  确定要发布选中的 {selectedIds.size} 篇文章吗？
+                </p>
+              </div>
+            </div>
+            <p className="text-gray-500 text-sm mb-6 pl-16">发布后文章将对公众可见。</p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={handleCancelPublish}
+                disabled={publishing}
+                className="px-5 py-2.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200 disabled:opacity-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleConfirmPublish}
+                disabled={publishing}
+                className="px-5 py-2.5 rounded-lg bg-green-500 hover:bg-green-500/90 text-white font-medium transition-all duration-200 disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {publishing && <Loader2 size={16} className="animate-spin" />}
+                {publishing ? '发布中...' : '确认发布'}
               </button>
             </div>
           </div>

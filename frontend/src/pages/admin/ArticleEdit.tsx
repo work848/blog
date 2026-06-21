@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,9 +12,11 @@ import {
   Loader2,
   FileText,
   X,
+  Image as ImageIcon,
 } from 'lucide-react';
 import {
   uploadFile,
+  uploadImage,
   getAdminArticleById,
   createArticle,
   updateArticle,
@@ -23,12 +25,16 @@ import { getCategories } from '@/api/category';
 import { getTags } from '@/api/tag';
 import type { Category, Tag, Article } from '@/types';
 
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
 export default function ArticleEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const articleId = id ? Number(id) : null;
   const isEditMode = !!articleId;
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<number | ''>('');
@@ -37,6 +43,7 @@ export default function ArticleEdit() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -71,6 +78,67 @@ export default function ArticleEdit() {
     loadData();
   }, [isEditMode, articleId]);
 
+  const insertAtCursor = useCallback(
+    (text: string) => {
+      const textarea = textareaRef.current;
+      if (!textarea) {
+        setContent((prev) => prev + text);
+        return;
+      }
+
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const before = content.substring(0, start);
+      const after = content.substring(end);
+
+      const newContent = before + text + after;
+      setContent(newContent);
+
+      requestAnimationFrame(() => {
+        textarea.focus();
+        const newPos = start + text.length;
+        textarea.setSelectionRange(newPos, newPos);
+      });
+    },
+    [content]
+  );
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError('不支持的图片格式，仅支持 JPG/PNG/GIF/WEBP/BMP');
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError('图片大小不能超过 5MB');
+      return;
+    }
+
+    setIsImageUploading(true);
+    setError('');
+
+    try {
+      const result = await uploadImage(file);
+      const markdown = `\n![${file.name}](${result.url})\n`;
+      insertAtCursor(markdown);
+    } catch (err) {
+      console.error('图片上传失败:', err);
+      setError('图片上传失败，请重试');
+    } finally {
+      setIsImageUploading(false);
+    }
+  };
+
+  const handleImageFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await handleImageUpload(file);
+      e.target.value = '';
+    }
+  };
+
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -93,8 +161,14 @@ export default function ArticleEdit() {
       if (files.length === 0) return;
 
       const file = files[0];
+
+      if (file.type.startsWith('image/')) {
+        await handleImageUpload(file);
+        return;
+      }
+
       if (!file.name.endsWith('.txt')) {
-        setError('请上传 .txt 格式的文件');
+        setError('请上传 .txt 格式的文件或图片文件');
         return;
       }
 
@@ -276,11 +350,15 @@ export default function ArticleEdit() {
             className="hidden"
             id="file-upload"
           />
-          <label
-            htmlFor="file-upload"
-            className="cursor-pointer flex flex-col items-center gap-3"
-          >
-            {isUploading ? (
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageFileInput}
+            className="hidden"
+            id="image-upload"
+          />
+          <div className="flex flex-col items-center gap-3">
+            {isUploading || isImageUploading ? (
               <Loader2 className="animate-spin text-[#ff6b35]" size={40} />
             ) : (
               <Upload
@@ -294,21 +372,38 @@ export default function ArticleEdit() {
               <p className="text-lg font-medium text-white">
                 {isUploading
                   ? '正在解析文件...'
+                  : isImageUploading
+                  ? '正在上传图片...'
                   : isDragOver
                   ? '松开鼠标上传文件'
-                  : '拖拽 .txt 文件到此处上传'}
+                  : '拖拽文件到此处上传'}
               </p>
               <p className="text-sm text-gray-400 mt-1">
-                或点击选择文件，支持自动解析标题和内容
+                支持 .txt 文本文件（自动解析标题和内容）和图片文件
               </p>
             </div>
-            {!isUploading && (
-              <div className="flex items-center gap-2 text-sm text-[#ff6b35]">
+            <div className="flex items-center gap-4 mt-2">
+              <label
+                htmlFor="file-upload"
+                className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-gray-300 hover:text-white transition-all"
+              >
                 <FileText size={16} />
-                <span>仅支持 .txt 格式</span>
+                上传 TXT 文件
+              </label>
+              <label
+                htmlFor="image-upload"
+                className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-[#ff6b35]/10 hover:bg-[#ff6b35]/20 border border-[#ff6b35]/30 rounded-lg text-sm text-[#ff6b35] hover:text-[#ff8535] transition-all"
+              >
+                <ImageIcon size={16} />
+                上传图片
+              </label>
+            </div>
+            {!isUploading && !isImageUploading && (
+              <div className="text-xs text-gray-500 mt-1">
+                图片支持 JPG/PNG/GIF/WEBP/BMP，最大 5MB
               </div>
             )}
-          </label>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
@@ -332,7 +427,9 @@ export default function ArticleEdit() {
               </label>
               <select
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : '')}
+                onChange={(e) =>
+                  setCategoryId(e.target.value ? Number(e.target.value) : '')
+                }
                 className="w-full px-4 py-3 bg-[#121212] border border-white/10 rounded-lg text-white focus:outline-none focus:border-[#ff6b35] focus:ring-1 focus:ring-[#ff6b35] transition-all"
               >
                 <option value="">请选择分类</option>
@@ -394,16 +491,39 @@ export default function ArticleEdit() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                文章内容 (Markdown)
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  文章内容 (Markdown)
+                </label>
+                <label
+                  htmlFor="image-inline-upload"
+                  className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-xs text-gray-400 hover:text-white transition-all"
+                >
+                  <ImageIcon size={14} />
+                  插入图片
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileInput}
+                  className="hidden"
+                  id="image-inline-upload"
+                />
+              </div>
               <textarea
+                ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="请输入文章内容，支持 Markdown 语法..."
                 rows={20}
                 className="w-full px-4 py-3 bg-[#121212] border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#ff6b35] focus:ring-1 focus:ring-[#ff6b35] transition-all resize-none font-mono text-sm leading-relaxed"
               />
+              {isImageUploading && (
+                <div className="mt-2 flex items-center gap-2 text-xs text-[#ff6b35]">
+                  <Loader2 className="animate-spin" size={14} />
+                  图片上传中...
+                </div>
+              )}
             </div>
           </div>
 

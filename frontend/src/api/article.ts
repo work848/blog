@@ -8,6 +8,9 @@ import type {
   FileUploadResponse,
   BatchPublishRequest,
   BatchDeleteRequest,
+  DashboardStats,
+  StatsTrend,
+  ImageUploadResponse,
 } from '@/types';
 
 export const getPublishedArticles = (
@@ -86,6 +89,35 @@ export const uploadFile = (file: File): Promise<FileUploadResponse> => {
   });
 };
 
+export const uploadImage = (file: File): Promise<ImageUploadResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return request<ImageUploadResponse>({
+    method: 'POST',
+    url: '/admin/articles/upload-image',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const getDashboardStats = (): Promise<DashboardStats> => {
+  return request<DashboardStats>({
+    method: 'GET',
+    url: '/admin/dashboard/stats',
+  });
+};
+
+export const getStatsTrend = (days: number = 30): Promise<StatsTrend[]> => {
+  return request<StatsTrend[]>({
+    method: 'GET',
+    url: '/admin/dashboard/trend',
+    params: { days },
+  });
+};
+
 export const createArticle = (data: ArticleCreateRequest): Promise<Article> => {
   return request<Article>({
     method: 'POST',
@@ -116,6 +148,21 @@ export const batchPublish = (articleIds: number[]): Promise<void> => {
   return request<void>({
     method: 'POST',
     url: '/admin/articles/publish/batch',
+    data: { articleIds } as BatchPublishRequest,
+  });
+};
+
+export const withdrawArticle = (id: number): Promise<void> => {
+  return request<void>({
+    method: 'POST',
+    url: `/admin/articles/${id}/withdraw`,
+  });
+};
+
+export const batchWithdraw = (articleIds: number[]): Promise<void> => {
+  return request<void>({
+    method: 'POST',
+    url: '/admin/articles/withdraw/batch',
     data: { articleIds } as BatchPublishRequest,
   });
 };

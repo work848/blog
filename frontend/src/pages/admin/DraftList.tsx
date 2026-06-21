@@ -23,6 +23,7 @@ import type { Article } from '@/types';
 import { cn } from '@/lib/utils';
 
 export default function DraftList() {
+  const navigate = useNavigate();
   const [drafts, setDrafts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);

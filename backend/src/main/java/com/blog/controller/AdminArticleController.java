@@ -51,6 +51,13 @@ public class AdminArticleController {
         return ApiResponse.success(response);
     }
 
+    @PostMapping("/upload-image")
+    @RateLimit(value = 30.0, key = "admin_upload_image")
+    public ApiResponse<ImageUploadResponse> uploadImage(@RequestParam("file") MultipartFile file) {
+        ImageUploadResponse response = fileUploadService.uploadImage(file);
+        return ApiResponse.success(response);
+    }
+
     @PostMapping
     @RateLimit(value = 30.0, key = "admin_create_article")
     public ApiResponse<ArticleVO> createArticle(@RequestBody ArticleCreateRequest request) {
@@ -78,6 +85,20 @@ public class AdminArticleController {
     @RateLimit(value = 20.0, key = "admin_batch_publish")
     public ApiResponse<Void> batchPublish(@RequestBody BatchPublishRequest request) {
         articleService.batchPublish(request.getArticleIds());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/{id}/withdraw")
+    @RateLimit(value = 30.0, key = "admin_withdraw_article")
+    public ApiResponse<Void> withdrawArticle(@PathVariable Long id) {
+        articleService.withdrawArticle(id);
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/withdraw/batch")
+    @RateLimit(value = 20.0, key = "admin_batch_withdraw")
+    public ApiResponse<Void> batchWithdraw(@RequestBody BatchPublishRequest request) {
+        articleService.batchWithdraw(request.getArticleIds());
         return ApiResponse.success();
     }
 
