@@ -6,8 +6,11 @@
         <id property="id" column="id"/>
         <result property="username" column="username"/>
         <result property="passwordHash" column="password_hash"/>
+        <result property="email" column="email"/>
+        <result property="avatar" column="avatar"/>
         <result property="role" column="role"/>
         <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
     <select id="findByUsername" resultMap="userResultMap">
@@ -17,4 +20,28 @@
     <select id="findById" resultMap="userResultMap">
         SELECT * FROM user WHERE id = #{id}
     </select>
+
+    <select id="findByEmail" resultMap="userResultMap">
+        SELECT * FROM user WHERE email = #{email}
+    </select>
+
+    <update id="updateUsername">
+        UPDATE user SET username = #{username}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE user SET password_hash = #{passwordHash}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}
+    </update>
+
+    <update id="updateEmail">
+        UPDATE user SET email = #{email}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}
+    </update>
+
+    <update id="updateAvatar">
+        UPDATE user SET avatar = #{avatar}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}
+    </update>
+
+    <update id="updatePasswordByEmail">
+        UPDATE user SET password_hash = #{passwordHash}, updated_at = CURRENT_TIMESTAMP WHERE email = #{email}
+    </update>
 </mapper>

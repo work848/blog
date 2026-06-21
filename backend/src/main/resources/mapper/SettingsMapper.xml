@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.SettingsMapper">
+
+    <resultMap id="settingsResultMap" type="com.blog.entity.Settings">
+        <id property="id" column="id"/>
+        <result property="settingKey" column="setting_key"/>
+        <result property="settingValue" column="setting_value"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findByKey" resultMap="settingsResultMap">
+        SELECT * FROM settings WHERE setting_key = #{settingKey}
+    </select>
+
+    <select id="findAll" resultMap="settingsResultMap">
+        SELECT * FROM settings
+    </select>
+
+    <update id="insertOrUpdate">
+        INSERT INTO settings (setting_key, setting_value, description, created_at, updated_at)
+        VALUES (#{settingKey}, #{settingValue}, #{description}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT(setting_key) DO UPDATE SET
+            setting_value = excluded.setting_value,
+            description = COALESCE(excluded.description, settings.description),
+            updated_at = CURRENT_TIMESTAMP
+    </update>
+</mapper>

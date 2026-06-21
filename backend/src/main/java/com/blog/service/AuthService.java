@@ -37,6 +37,8 @@ public class AuthService {
         UserVO userVO = new UserVO();
         userVO.setId(user.getId());
         userVO.setUsername(user.getUsername());
+        userVO.setEmail(user.getEmail());
+        userVO.setAvatar(user.getAvatar());
         userVO.setRole(user.getRole());
 
         return new LoginResponse(token, userVO);

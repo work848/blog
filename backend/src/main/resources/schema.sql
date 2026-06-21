@@ -2,9 +2,27 @@ CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    email TEXT,
+    avatar TEXT,
     role TEXT NOT NULL DEFAULT 'ADMIN',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    setting_key TEXT NOT NULL UNIQUE,
+    setting_value TEXT,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT OR IGNORE INTO settings (setting_key, setting_value, description)
+VALUES ('global_font_family', 'system-ui, -apple-system, sans-serif', '全局字体设置');
+
+INSERT OR IGNORE INTO settings (setting_key, setting_value, description)
+VALUES ('global_font_size', '16', '全局字体大小(px)');
 
 CREATE TABLE IF NOT EXISTS article (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +74,7 @@ CREATE INDEX IF NOT EXISTS idx_article_created_at ON article(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_like_record_ip ON like_record(ip_address);
 
 INSERT OR IGNORE INTO user (username, password_hash, role)
-VALUES ('admin', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', 'ADMIN');
+VALUES ('admin', '$2a$10$JGdDIZj49t/G4tEU7qwbwui2jqc/XPs5XaZSFnNF1HUDYT9NBb7rm', 'ADMIN');
 
 INSERT OR IGNORE INTO category (name, color) VALUES ('技术', '#ff6b35');
 INSERT OR IGNORE INTO category (name, color) VALUES ('生活', '#4ecdc4');
