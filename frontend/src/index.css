@@ -2,73 +2,409 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-  line-height: 1.6;
-  font-weight: 400;
+@layer base {
+  html {
+    font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.75;
+    font-weight: 400;
+    scroll-behavior: smooth;
+  }
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  body {
+    background-color: #0B1325;
+    color: #E2E8F0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: rgba(58, 134, 255, 0.4);
+    color: #ffffff;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #1E293B 0%, #3A86FF 100%);
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #3A86FF 0%, #67E8F9 100%);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3A86FF transparent;
+  }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer components {
+  .font-serif-display {
+    font-family: 'Playfair Display', 'Noto Serif JP', Georgia, serif;
+    letter-spacing: 0.02em;
+  }
+
+  .font-serif-jp {
+    font-family: 'Noto Serif JP', 'Playfair Display', Georgia, serif;
+    letter-spacing: 0.05em;
+  }
+
+  .glass-card {
+    background: linear-gradient(135deg, rgba(17, 28, 54, 0.7) 0%, rgba(11, 19, 37, 0.8) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(58, 134, 255, 0.4) 0%,
+      rgba(100, 116, 139, 0.1) 50%,
+      rgba(58, 134, 255, 0.2) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 20px rgba(58, 134, 255, 0.3), 0 0 40px rgba(58, 134, 255, 0.1);
+  }
+
+  .glass-card:hover::before {
+    background: linear-gradient(
+      135deg,
+      rgba(58, 134, 255, 0.7) 0%,
+      rgba(100, 116, 139, 0.3) 50%,
+      rgba(58, 134, 255, 0.5) 100%
+    );
+  }
+
+  .writing-vertical {
+    writing-mode: vertical-rl;
+    -ms-writing-mode: tb-rl;
+    text-orientation: mixed;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Tatami Grid Layout */
+  .tatami-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+    grid-auto-flow: dense;
+  }
+
+  @media (max-width: 1024px) {
+    .tatami-grid {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .tatami-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+  }
+
+  /* Hanko (Japanese Seal) Stamp */
+  .hanko-stamp {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+    border: 3px solid #B91C1C;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.2);
+    transform: rotate(-3deg);
+    transition: transform 0.3s ease;
+  }
+
+  .hanko-stamp:hover {
+    transform: rotate(0deg) scale(1.05);
+  }
+
+  .hanko-stamp::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* Ink splash effect */
+  .ink-splash {
+    background: radial-gradient(circle at center, rgba(58, 134, 255, 0.15) 0%, transparent 70%);
+  }
+
+  /* Prose content styling for articles */
+  .prose-aiiro {
+    color: #E2E8F0;
+    line-height: 1.9;
+    font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+  }
+
+  .prose-aiiro p {
+    margin: 1.5rem 0;
+    text-indent: 2em;
+  }
+
+  .prose-aiiro h1 {
+    font-family: 'Playfair Display', 'Noto Serif JP', serif;
+    font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin: 2.5rem 0 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .prose-aiiro h2 {
+    font-family: 'Playfair Display', 'Noto Serif JP', serif;
+    font-size: clamp(1.5rem, 1.5vw + 0.75rem, 2rem);
+    font-weight: 600;
+    color: #ffffff;
+    margin: 2rem 0 0.75rem;
+    letter-spacing: 0.03em;
+    position: relative;
+    padding-left: 1rem;
+  }
+
+  .prose-aiiro h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10%;
+    height: 80%;
+    width: 3px;
+    background: linear-gradient(180deg, #3A86FF, transparent);
+  }
+
+  .prose-aiiro h3 {
+    font-family: 'Playfair Display', 'Noto Serif JP', serif;
+    font-size: clamp(1.25rem, 1vw + 0.75rem, 1.5rem);
+    font-weight: 600;
+    color: #ffffff;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .prose-aiiro a {
+    color: #3A86FF;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(58, 134, 255, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .prose-aiiro a:hover {
+    color: #67E8F9;
+    border-bottom-color: #67E8F9;
+  }
+
+  .prose-aiiro ul,
+  .prose-aiiro ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+  }
+
+  .prose-aiiro ul {
+    list-style: none;
+  }
+
+  .prose-aiiro ul li {
+    position: relative;
+    padding-left: 1rem;
+    margin: 0.5rem 0;
+  }
+
+  .prose-aiiro ul li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: #3A86FF;
+    font-size: 0.6em;
+    top: 0.5em;
+  }
+
+  .prose-aiiro ol li {
+    margin: 0.5rem 0;
+  }
+
+  .prose-aiiro blockquote {
+    border-left: 3px solid #3A86FF;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    background: rgba(58, 134, 255, 0.05);
+    color: #94A3B8;
+    font-style: italic;
+    font-family: 'Noto Serif JP', serif;
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+
+  .prose-aiiro blockquote p {
+    margin: 0;
+    text-indent: 0;
+  }
+
+  .prose-aiiro code {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    background: rgba(58, 134, 255, 0.1);
+    color: #67E8F9;
+    padding: 0.15em 0.4em;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+
+  .prose-aiiro pre {
+    margin: 1.5rem 0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #0B1325 !important;
+    border: 1px solid #1E293B;
+  }
+
+  .prose-aiiro pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font-size: 0.875rem;
+  }
+
+  .prose-aiiro hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #1E293B, transparent);
+    margin: 3rem 0;
+  }
+
+  .prose-aiiro img {
+    border-radius: 0.75rem;
+    margin: 1.5rem 0;
+    max-width: 100%;
+    border: 1px solid #1E293B;
+  }
+
+  .prose-aiiro table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .prose-aiiro th,
+  .prose-aiiro td {
+    padding: 0.75rem 1rem;
+    border: 1px solid #1E293B;
+    text-align: left;
+  }
+
+  .prose-aiiro th {
+    background: rgba(17, 28, 54, 0.5);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .prose-aiiro tr:nth-child(even) td {
+    background: rgba(11, 19, 37, 0.3);
+  }
+
+  .prose-aiiro strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .prose-aiiro em {
+    color: #94A3B8;
+    font-style: italic;
+  }
 }
 
-body {
-  background-color: #1a1a1a;
-  color: #f5f0e6;
-  min-height: 100vh;
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #3A86FF 0%, #67E8F9 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30, 41, 59, 0.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .mask-fade-edges {
+    mask-image: linear-gradient(180deg, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #121212;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #444;
-}
-
-::selection {
-  background-color: #ff6b35;
-  color: white;
-}
-
-.prose pre {
-  margin: 0;
-  padding: 0;
-  background: transparent;
-}
-
-.prose code {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
+/* Input styling */
 input[type='color'] {
   -webkit-appearance: none;
   border: none;
   padding: 0;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  background: transparent;
 }
 
 input[type='color']::-webkit-color-swatch-wrapper {
@@ -76,6 +412,6 @@ input[type='color']::-webkit-color-swatch-wrapper {
 }
 
 input[type='color']::-webkit-color-swatch {
-  border: 2px solid #333;
-  border-radius: 4px;
+  border: 2px solid #1E293B;
+  border-radius: 0.5rem;
 }

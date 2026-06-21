@@ -27,9 +27,9 @@ import type { Article, DashboardStats, StatsTrend } from '@/types';
 type TrendKey = 'totalArticles' | 'publishedArticles' | 'likeCount';
 
 const LINE_CONFIG: Record<TrendKey, { label: string; color: string }> = {
-  totalArticles: { label: '文章总数', color: '#ff6b35' },
-  publishedArticles: { label: '发布数量', color: '#10b981' },
-  likeCount: { label: '点赞数量', color: '#ef4444' },
+  totalArticles: { label: '文章总数', color: '#3A86FF' },
+  publishedArticles: { label: '发布数量', color: '#67E8F9' },
+  likeCount: { label: '点赞数量', color: '#F43F5E' },
 };
 
 function useCountUp(target: number, duration: number = 1500, start: boolean = false) {
@@ -79,15 +79,15 @@ function StatCard({ data, index }: { data: StatCardData; index: number }) {
 
   return (
     <div
-      className={`bg-[#121212] border border-white/10 rounded-xl p-6 transition-all duration-500 hover:border-[#ff6b35]/50 hover:transform hover:translate-y-[-4px] ${
+      className={`glass-card rounded-xl p-6 transition-all duration-500 hover:shadow-neon-sm ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-gray-400 text-sm mb-1">{data.title}</p>
+          <p className="text-aiiro-muted text-sm mb-1 font-serif-jp" style={{ fontFamily: "'Noto Serif JP', serif" }}>{data.title}</p>
           <p
-            className="text-3xl font-bold text-white mt-2"
+            className="text-3xl font-bold text-white mt-2 font-serif-display"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {count.toLocaleString()}
@@ -95,7 +95,7 @@ function StatCard({ data, index }: { data: StatCardData; index: number }) {
         </div>
         <div
           className="p-3 rounded-lg"
-          style={{ backgroundColor: `${data.color}20` }}
+          style={{ backgroundColor: `${data.color}20`, border: `1px solid ${data.color}30` }}
         >
           <Icon size={24} style={{ color: data.color }} />
         </div>
@@ -104,12 +104,13 @@ function StatCard({ data, index }: { data: StatCardData; index: number }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-3 shadow-xl">
-        <p className="text-gray-400 text-sm mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
+      <div className="glass-card rounded-lg p-3 shadow-glass border border-aiiro-border">
+        <p className="text-aiiro-muted text-sm mb-2">{label}</p>
+        {payload.map((entry: { name: string; value: number; color: string }, index: number) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: {entry.value.toLocaleString()}
           </p>
@@ -204,25 +205,25 @@ export default function AdminDashboard() {
           title: '文章总数',
           value: stats.totalArticles,
           icon: FileText,
-          color: '#ff6b35',
+          color: '#3A86FF',
         },
         {
           title: '已发布',
           value: stats.publishedArticles,
           icon: CheckCircle,
-          color: '#10b981',
+          color: '#10B981',
         },
         {
           title: '草稿数',
           value: stats.draftArticles,
           icon: FileEdit,
-          color: '#f59e0b',
+          color: '#F59E0B',
         },
         {
           title: '总点赞数',
           value: stats.totalLikes,
           icon: Heart,
-          color: '#ef4444',
+          color: '#F43F5E',
         },
       ]
     : [];
@@ -238,12 +239,14 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <div>
         <h1
-          className="text-3xl font-bold text-white mb-2"
-          style={{ fontFamily: "'Playfair Display', serif" }}
+          className="text-3xl font-bold text-white mb-2 font-serif-display"
+          style={{ fontFamily: "'Playfair Display', 'Noto Serif JP', serif" }}
         >
-          概览
+          概覽
         </h1>
-        <p className="text-gray-400">欢迎回来，这是您的博客数据概览</p>
+        <p className="text-aiiro-muted font-serif-jp" style={{ fontFamily: "'Noto Serif JP', serif" }}>
+          おかえりなさい、ブログのデータ概要です
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -251,10 +254,10 @@ export default function AdminDashboard() {
           ? Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-[#121212] border border-white/10 rounded-xl p-6 animate-pulse"
+                className="glass-card rounded-xl p-6 animate-pulse"
               >
-                <div className="h-4 bg-white/5 rounded w-20 mb-4" />
-                <div className="h-8 bg-white/5 rounded w-24" />
+                <div className="h-4 bg-aiiro-border/50 rounded w-20 mb-4" />
+                <div className="h-8 bg-aiiro-border/50 rounded w-24" />
               </div>
             ))
           : statCards.map((stat, index) => (
@@ -262,23 +265,23 @@ export default function AdminDashboard() {
             ))}
       </div>
 
-      <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+      <div className="glass-card rounded-xl p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <h2
-            className="text-xl font-bold text-white"
+            className="text-xl font-bold text-white font-serif-display"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            数据趋势
+            データ傾向
           </h2>
           <div className="flex flex-wrap items-center gap-3">
             <select
               value={trendDays}
               onChange={(e) => setTrendDays(Number(e.target.value))}
-              className="px-3 py-2 bg-[#1a1a1a] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-[#ff6b35]"
+              className="px-3 py-2 bg-aiiro-deep/50 border border-aiiro-border rounded-lg text-white text-sm focus:outline-none focus:border-aiiro-accent"
             >
-              <option value={7}>最近 7 天</option>
-              <option value={14}>最近 14 天</option>
-              <option value={30}>最近 30 天</option>
+              <option value={7}>最近 7 日</option>
+              <option value={14}>最近 14 日</option>
+              <option value={30}>最近 30 日</option>
             </select>
             {(Object.keys(LINE_CONFIG) as TrendKey[]).map((key) => {
               const cfg = LINE_CONFIG[key];
@@ -289,8 +292,8 @@ export default function AdminDashboard() {
                   onClick={() => toggleLine(key)}
                   className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
                     active
-                      ? 'bg-white/5 border-white/20 text-white'
-                      : 'bg-transparent border-white/10 text-gray-500 hover:text-gray-300'
+                      ? 'bg-aiiro-accent/15 border-aiiro-accent/40 text-aiiro-light'
+                      : 'bg-transparent border-aiiro-border/50 text-aiiro-muted hover:text-aiiro-light'
                   }`}
                 >
                   <span
@@ -310,7 +313,7 @@ export default function AdminDashboard() {
 
         {loading ? (
           <div className="h-80 flex justify-center items-center">
-            <Loader2 className="animate-spin text-[#ff6b35]" size={32} />
+            <Loader2 className="animate-spin text-aiiro-accent" size={32} />
           </div>
         ) : (
           <div className="h-80">
@@ -324,26 +327,26 @@ export default function AdminDashboard() {
                     </linearGradient>
                   ))}
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(30,41,59,0.8)" />
                 <XAxis
                   dataKey="date"
-                  stroke="#6b7280"
+                  stroke="#64748B"
                   fontSize={12}
                   tickLine={false}
-                  axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                  axisLine={{ stroke: 'rgba(30,41,59,0.8)' }}
                 />
                 <YAxis
-                  stroke="#6b7280"
+                  stroke="#64748B"
                   fontSize={12}
                   tickLine={false}
-                  axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                  axisLine={{ stroke: 'rgba(30,41,59,0.8)' }}
                   tickFormatter={(v) => v.toLocaleString()}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend
                   wrapperStyle={{ paddingTop: 20 }}
                   formatter={(value: string) => (
-                    <span className="text-gray-400 text-sm">{value}</span>
+                    <span className="text-aiiro-muted text-sm">{value}</span>
                   )}
                 />
                 {(Object.keys(LINE_CONFIG) as TrendKey[]).map((key) => (
@@ -365,47 +368,47 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+      <div className="glass-card rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h2
-            className="text-xl font-bold text-white"
+            className="text-xl font-bold text-white font-serif-display"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            最新文章
+            最新記事
           </h2>
-          <span className="text-sm text-gray-500">共 5 条</span>
+          <span className="text-sm text-aiiro-muted">共 5 条</span>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="animate-spin text-[#ff6b35]" size={32} />
+            <Loader2 className="animate-spin text-aiiro-accent" size={32} />
           </div>
         ) : articles.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <p className="text-lg">暂无文章</p>
+          <div className="text-center py-12 text-aiiro-muted">
+            <p className="text-lg">記事がありません</p>
           </div>
         ) : (
           <div className="space-y-1">
             {articles.map((article, index) => (
               <div
                 key={article.id}
-                className="flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-colors group animate-fade-in"
+                className="flex items-center justify-between p-4 rounded-lg hover:bg-aiiro-accent/5 transition-colors group animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="flex-shrink-0 p-2 rounded-lg bg-white/5 group-hover:bg-[#ff6b35]/20 transition-colors">
+                  <div className="flex-shrink-0 p-2 rounded-lg bg-aiiro-border/30 group-hover:bg-aiiro-accent/20 transition-colors">
                     <FileText
                       size={18}
-                      className="text-gray-400 group-hover:text-[#ff6b35] transition-colors"
+                      className="text-aiiro-muted group-hover:text-aiiro-accent transition-colors"
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-white font-medium truncate group-hover:text-[#ff6b35] transition-colors">
+                    <p className="text-white font-medium truncate group-hover:text-aiiro-accent transition-colors">
                       {article.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Clock size={12} className="text-gray-500" />
-                      <span className="text-sm text-gray-500">
+                      <Clock size={12} className="text-aiiro-muted" />
+                      <span className="text-sm text-aiiro-muted">
                         {formatLongDate(article.publishedAt || article.createdAt)}
                       </span>
                     </div>
@@ -413,9 +416,9 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0 ml-4">
                   {getStatusBadge(article.status)}
-                  <div className="flex items-center gap-1 text-gray-500">
+                  <div className="flex items-center gap-1 text-aiiro-muted">
                     <Heart size={14} />
-                    <span className="text-sm">{article.likeCount}</span>
+                    <span className="text-sm tabular-nums">{article.likeCount}</span>
                   </div>
                 </div>
               </div>

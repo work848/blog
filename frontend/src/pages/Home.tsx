@@ -1,8 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, Calendar, Tag as TagIcon, ChevronRight, Loader2, Settings } from 'lucide-react';
+import { Heart, Calendar, Loader2, Tag as TagIcon } from 'lucide-react';
 import { getPublishedArticles, getLikeStatus, likeArticle } from '@/api/article';
-import type { Article, LikeResponse } from '@/types';
+import type { Article, LikeResponse, Category } from '@/types';
+import ParticleBackground from '@/components/ParticleBackground';
+import ArticleCard from '@/components/ArticleCard';
+import VerticalSidebar from '@/components/VerticalSidebar';
+import HankoAvatar from '@/components/HankoAvatar';
+
+const cardSpans = [
+  { col: 'md:col-span-7 lg:col-span-7', row: '' },
+  { col: 'md:col-span-5 lg:col-span-5', row: 'md:row-span-2' },
+  { col: 'md:col-span-4 lg:col-span-4', row: '' },
+  { col: 'md:col-span-4 lg:col-span-4', row: '' },
+  { col: 'md:col-span-4 lg:col-span-4', row: '' },
+  { col: 'md:col-span-6 lg:col-span-6', row: '' },
+  { col: 'md:col-span-6 lg:col-span-6', row: '' },
+  { col: 'md:col-span-4 lg:col-span-4', row: '' },
+  { col: 'md:col-span-8 lg:col-span-8', row: '' },
+  { col: 'md:col-span-4 lg:col-span-4', row: '' },
+  { col: 'md:col-span-5 lg:col-span-5', row: '' },
+  { col: 'md:col-span-7 lg:col-span-7', row: '' },
+];
 
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -11,24 +29,32 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [likeStatuses, setLikeStatuses] = useState<Record<number, LikeResponse>>({});
   const [likingIds, setLikingIds] = useState<Set<number>>(new Set());
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const loadArticles = async (pageNum: number, reset = false) => {
     setLoading(true);
     try {
-      const result = await getPublishedArticles(pageNum, 10);
+      const result = await getPublishedArticles(pageNum, 12);
       if (reset) {
         setArticles(result.list);
       } else {
         setArticles((prev) => [...prev, ...result.list]);
       }
-      setHasMore(pageNum * 10 < result.total);
+      setHasMore(pageNum * 12 < result.total);
       setPage(pageNum);
 
+      const uniqueCats = new Map<number, Category>();
       result.list.forEach((article) => {
+        if (article.category) {
+          if (!uniqueCats.has(article.category.id)) {
+            uniqueCats.set(article.category.id, article.category);
+          }
+        }
         getLikeStatus(article.id).then((status) => {
           setLikeStatuses((prev) => ({ ...prev, [article.id]: status }));
         });
       });
+      setCategories(Array.from(uniqueCats.values()));
     } catch (error) {
       console.error('加载文章失败:', error);
     } finally {
@@ -73,177 +99,239 @@ export default function Home() {
     });
   };
 
-  const getReadingTime = (content: string) => {
-    const words = content.length;
-    const minutes = Math.ceil(words / 300);
-    return `${minutes} 分钟阅读`;
-  };
-
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
-      <header className="sticky top-0 z-50 bg-[#1a1a1a]/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link
-            to="/"
-            className="text-2xl font-bold text-white"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            博客
-          </Link>
-          <Link
-            to="/login"
-            className="text-gray-400 hover:text-[#ff6b35] transition-colors p-2"
-          >
-            <Settings size={20} />
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-aiiro-deep relative overflow-hidden">
+      <ParticleBackground />
 
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <div className="space-y-12">
-          {articles.map((article, index) => {
-            const likeStatus = likeStatuses[article.id];
-            const isLiking = likingIds.has(article.id);
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none z-0" />
 
-            return (
-              <article
-                key={article.id}
-                className="group animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <Link to={`/article/${article.id}`} className="block">
-                  {article.category && (
-                    <span
-                      className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-3"
-                      style={{
-                        backgroundColor: `${article.category.color}20`,
-                        color: article.category.color,
-                      }}
+      <VerticalSidebar categories={categories} />
+
+      <div className="relative z-10">
+        <header className="relative pt-16 pb-8 md:pt-24 md:pb-16 px-6 lg:pr-24">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16">
+              <div className="relative">
+                <div className="absolute -left-8 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-aiiro-accent/40 to-transparent hidden md:block" />
+
+                <div className="flex items-center gap-4 mb-6">
+                  <HankoAvatar size="md" text="藍" />
+                  <div>
+                    <p
+                      className="text-xs tracking-[0.3em] text-aiiro-muted uppercase font-sans"
                     >
-                      {article.category.name}
-                    </span>
-                  )}
+                      AIIRO · 藍染
+                    </p>
+                    <p
+                      className="text-sm text-aiiro-muted/70 font-serif-jp mt-0.5"
+                      style={{ fontFamily: "'Noto Serif JP', serif" }}
+                    >
+                      墨染の文、藍より青し
+                    </p>
+                  </div>
+                </div>
 
-                  <h2
-                    className="text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-[#ff6b35] transition-colors duration-200 group-hover:translate-y-[-2px]"
+                <h1
+                  className="font-serif-display text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight mb-6"
+                  style={{ fontFamily: "'Playfair Display', 'Noto Serif JP', serif" }}
+                >
+                  <span className="block">Thoughts,</span>
+                  <span className="block italic text-gradient">rendered in</span>
+                  <span className="block">
+                    <span
+                      className="font-serif-jp"
+                      style={{ fontFamily: "'Noto Serif JP', serif" }}
+                    >
+                      藍
+                    </span>
+                    <span className="text-aiiro-muted">.</span>
+                  </span>
+                </h1>
+
+                <p className="text-aiiro-muted text-base md:text-lg max-w-lg leading-relaxed font-light">
+                  在深蓝的静谧中，书写代码与生活的沉思。
+                  每一篇文字都是一次思维的沉淀，如同蓝染布上缓缓晕开的墨色。
+                </p>
+              </div>
+
+              <div className="flex flex-col items-start md:items-end gap-4">
+                <div className="glass-card rounded-xl px-5 py-4 flex items-center gap-4">
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-bold text-white font-serif-display">
+                      {articles.length}
+                    </span>
+                    <span
+                      className="text-xs text-aiiro-muted tracking-wider font-serif-jp"
+                      style={{ fontFamily: "'Noto Serif JP', serif" }}
+                    >
+                      篇記事
+                    </span>
+                  </div>
+                  <div className="w-px h-10 bg-aiiro-border" />
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-bold text-aiiro-accent font-serif-display">
+                      {articles.reduce((sum, a) => sum + a.likeCount, 0)}
+                    </span>
+                    <span
+                      className="text-xs text-aiiro-muted tracking-wider font-serif-jp"
+                      style={{ fontFamily: "'Noto Serif JP', serif" }}
+                    >
+                      いいね
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-aiiro-muted">
+                  <Calendar size={14} />
+                  <span>
+                    最終更新:{' '}
+                    {articles[0]
+                      ? formatDate(articles[0].publishedAt || articles[0].createdAt)
+                      : '—'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3" id="tags">
+              {categories.map((cat) => (
+                <span
+                  key={cat.id}
+                  className="px-4 py-1.5 rounded-full text-sm glass-card text-aiiro-light hover:text-aiiro-accent transition-colors cursor-pointer font-serif-jp"
+                  style={{ fontFamily: "'Noto Serif JP', serif" }}
+                >
+                  <TagIcon size={12} className="inline mr-1.5 -mt-0.5" />
+                  {cat.name}
+                  <span className="ml-1.5 text-aiiro-muted/60 text-xs tabular-nums">
+                    {cat.articleCount}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-aiiro-border to-transparent" />
+
+        <main className="px-6 lg:pr-24 py-16" id="articles">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center gap-4 mb-12">
+              <h2
+                className="font-serif-display text-2xl md:text-3xl font-bold text-white"
+                style={{ fontFamily: "'Playfair Display', 'Noto Serif JP', serif" }}
+              >
+                最新記事
+              </h2>
+              <div className="flex-1 h-px bg-gradient-to-r from-aiiro-border/60 to-transparent" />
+              <span
+                className="text-xs text-aiiro-muted tracking-widest font-serif-jp"
+                style={{ fontFamily: "'Noto Serif JP', serif" }}
+              >
+                さいしんきじ
+              </span>
+            </div>
+
+            {articles.length > 0 ? (
+              <div className="tatami-grid">
+                {articles.map((article, index) => {
+                  const span = cardSpans[index % cardSpans.length];
+                  return (
+                    <div key={article.id} className={span.col}>
+                      <ArticleCard
+                        article={article}
+                        index={index}
+                        likeStatus={likeStatuses[article.id]}
+                        isLiking={likingIds.has(article.id)}
+                        onLike={handleLike}
+                        span={span}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              !loading && (
+                <div className="text-center py-24">
+                  <div className="text-6xl mb-6 opacity-20">
+                    <span
+                      className="font-serif-jp"
+                      style={{ fontFamily: "'Noto Serif JP', serif" }}
+                    >
+                      無
+                    </span>
+                  </div>
+                  <p
+                    className="text-aiiro-muted text-lg font-serif-jp"
+                    style={{ fontFamily: "'Noto Serif JP', serif" }}
+                  >
+                    まだ記事はありません
+                  </p>
+                  <p className="text-aiiro-muted/60 text-sm mt-2">敬请期待...</p>
+                </div>
+              )
+            )}
+
+            {loading && (
+              <div className="flex justify-center py-20">
+                <Loader2 className="animate-spin text-aiiro-accent" size={36} />
+              </div>
+            )}
+
+            {!loading && hasMore && (
+              <div className="flex justify-center mt-16">
+                <button
+                  onClick={() => loadArticles(page + 1)}
+                  className="group glass-card px-8 py-4 rounded-xl text-aiiro-light hover:text-aiiro-accent transition-all duration-300 flex items-center gap-3"
+                >
+                  <span
+                    className="font-serif-jp tracking-wider"
+                    style={{ fontFamily: "'Noto Serif JP', serif" }}
+                  >
+                    続きを読む
+                  </span>
+                  <Heart
+                    size={16}
+                    className="group-hover:text-aiiro-accent transition-colors"
+                  />
+                </button>
+              </div>
+            )}
+          </div>
+        </main>
+
+        <footer className="relative border-t border-aiiro-border/50 py-12 px-6 lg:pr-24" id="about">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+              <div className="flex items-center gap-4">
+                <HankoAvatar size="sm" text="印" />
+                <div>
+                  <p
+                    className="font-serif-display text-xl font-bold text-white"
                     style={{ fontFamily: "'Playfair Display', serif" }}
                   >
-                    {article.title}
-                  </h2>
-
-                  <p className="text-gray-400 mb-4 line-clamp-2 leading-relaxed">
-                    {article.summary}
+                    Aiiro Blog
                   </p>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar size={14} />
-                      <span>{formatDate(article.publishedAt || article.createdAt)}</span>
-                    </div>
-                    <span>·</span>
-                    <span>{getReadingTime(article.content)}</span>
-                  </div>
-
-                  {article.tags && article.tags.length > 0 && (
-                    <div className="flex items-center gap-2 mt-4">
-                      <TagIcon size={14} className="text-gray-500" />
-                      <div className="flex flex-wrap gap-2">
-                        {article.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag.id}
-                            className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded"
-                          >
-                            #{tag.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </Link>
-
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleLike(article.id);
-                    }}
-                    disabled={isLiking || likeStatus?.liked}
-                    className={`flex items-center gap-2 transition-all duration-200 ${
-                      likeStatus?.liked
-                        ? 'text-[#ff6b35]'
-                        : 'text-gray-400 hover:text-[#ff6b35]'
-                    } disabled:cursor-not-allowed`}
-                  >
-                    <Heart
-                      size={18}
-                      className={`transition-all duration-200 ${
-                        likeStatus?.liked ? 'fill-current scale-110' : ''
-                      } ${isLiking ? 'animate-bounce' : ''}`}
-                    />
-                    <span className="text-sm">
-                      {likeStatus?.likeCount ?? article.likeCount}
-                    </span>
-                  </button>
-
-                  <Link
-                    to={`/article/${article.id}`}
-                    className="flex items-center gap-1 text-sm text-gray-400 hover:text-[#ff6b35] transition-colors"
-                  >
-                    <span>阅读全文</span>
-                    <ChevronRight size={16} />
-                  </Link>
+                  <p className="text-xs text-aiiro-muted tracking-widest uppercase">
+                    藍染 · est. 2026
+                  </p>
                 </div>
-              </article>
-            );
-          })}
-        </div>
+              </div>
 
-        {loading && (
-          <div className="flex justify-center py-12">
-            <Loader2 className="animate-spin text-[#ff6b35]" size={32} />
+              <div className="flex flex-col md:items-end gap-2">
+                <p
+                  className="text-sm text-aiiro-muted font-serif-jp"
+                  style={{ fontFamily: "'Noto Serif JP', serif" }}
+                >
+                  一期一会 ·  Ichigo Ichie
+                </p>
+                <p className="text-xs text-aiiro-muted/60">
+                  © 2026 All rights reserved. Crafted with indigo & intention.
+                </p>
+              </div>
+            </div>
           </div>
-        )}
-
-        {!loading && hasMore && (
-          <div className="flex justify-center py-12">
-            <button
-              onClick={() => loadArticles(page + 1)}
-              className="px-6 py-3 border border-white/10 text-gray-300 hover:border-[#ff6b35] hover:text-[#ff6b35] rounded-lg transition-all duration-200"
-            >
-              加载更多
-            </button>
-          </div>
-        )}
-
-        {!loading && articles.length === 0 && (
-          <div className="text-center py-20 text-gray-500">
-            <p className="text-lg">暂无文章</p>
-            <p className="text-sm mt-2">敬请期待...</p>
-          </div>
-        )}
-      </main>
-
-      <footer className="border-t border-white/5 py-8 mt-12">
-        <div className="max-w-3xl mx-auto px-6 text-center text-gray-500 text-sm">
-          <p>© 2026 个人博客. All rights reserved.</p>
-        </div>
-      </footer>
-
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out forwards;
-        }
-      `}</style>
+        </footer>
+      </div>
     </div>
   );
 }
