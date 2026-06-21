@@ -21,7 +21,6 @@ import {
   sendBindEmailCode,
   bindEmail,
 } from '@/api/user';
-import type { User as UserType } from '@/types';
 
 interface SectionCardProps {
   icon: React.ElementType;
@@ -48,7 +47,7 @@ function SectionCard({ icon: Icon, title, description, children }: SectionCardPr
 }
 
 export default function AdminSettings() {
-  const { user, updateUser } = useAuthStore();
+  const { user, updateUser, setAuth } = useAuthStore();
   const { fontSettings, updateSettings } = useFontSettings();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -122,7 +121,7 @@ export default function AdminSettings() {
 
     setAvatarUploading(true);
     try {
-      const updatedUser = await uploadAvatar(file) as unknown as UserType;
+      const updatedUser = await uploadAvatar(file);
       updateUser(updatedUser);
       showToast('头像更新成功');
     } catch (error: any) {
@@ -146,8 +145,12 @@ export default function AdminSettings() {
     }
     setUsernameLoading(true);
     try {
-      const updatedUser = await updateUsername({ username });
-      updateUser(updatedUser);
+      const response = await updateUsername({ username });
+      if (response.token) {
+        setAuth(response.token, response.user);
+      } else {
+        updateUser(response.user);
+      }
       showToast('用户名更新成功');
     } catch (error: any) {
       showToast(error.message || '用户名更新失败', 'error');

@@ -1,9 +1,11 @@
 package com.blog.service;
 
 import com.blog.dto.ImageUploadResponse;
+import com.blog.dto.LoginResponse;
 import com.blog.dto.UserVO;
 import com.blog.entity.User;
 import com.blog.mapper.UserMapper;
+import com.blog.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ public class UserService {
     @Autowired
     private VerificationTokenService verificationTokenService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     public UserVO getUserVO(User user) {
         UserVO vo = new UserVO();
         vo.setId(user.getId());
@@ -40,7 +45,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserVO updateUsername(Long userId, String newUsername) {
+    public LoginResponse updateUsername(Long userId, String newUsername) {
         User existingUser = userMapper.findByUsername(newUsername);
         if (existingUser != null) {
             throw new IllegalArgumentException("用户名已被使用");
@@ -50,7 +55,8 @@ public class UserService {
             throw new RuntimeException("用户名更新失败");
         }
         User updated = userMapper.findById(userId);
-        return getUserVO(updated);
+        String newToken = jwtUtil.generateToken(updated.getUsername(), updated.getRole());
+        return new LoginResponse(newToken, getUserVO(updated));
     }
 
     @Transactional

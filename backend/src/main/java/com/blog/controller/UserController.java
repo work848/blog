@@ -46,13 +46,13 @@ public class UserController {
     }
 
     @PutMapping("/username")
-    public ApiResponse<UserVO> updateUsername(@Valid @RequestBody UpdateUsernameRequest request) {
+    public ApiResponse<LoginResponse> updateUsername(@Valid @RequestBody UpdateUsernameRequest request) {
         User user = getCurrentUser();
         if (user.getUsername().equals(request.getUsername())) {
-            return ApiResponse.success(userService.getUserVO(user));
+            return ApiResponse.success(new LoginResponse(null, userService.getUserVO(user)));
         }
-        UserVO updated = userService.updateUsername(user.getId(), request.getUsername());
-        return ApiResponse.success(updated);
+        LoginResponse response = userService.updateUsername(user.getId(), request.getUsername());
+        return ApiResponse.success(response);
     }
 
     @PutMapping("/password")

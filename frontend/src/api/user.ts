@@ -1,6 +1,7 @@
 import { request } from './client';
 import type {
   User,
+  LoginResponse,
   UpdateUsernameRequest,
   UpdatePasswordRequest,
   BindEmailRequest,
@@ -14,8 +15,8 @@ export const getProfile = (): Promise<User> => {
   });
 };
 
-export const updateUsername = (data: UpdateUsernameRequest): Promise<User> => {
-  return request<User>({
+export const updateUsername = (data: UpdateUsernameRequest): Promise<LoginResponse> => {
+  return request<LoginResponse>({
     method: 'PUT',
     url: '/user/username',
     data,

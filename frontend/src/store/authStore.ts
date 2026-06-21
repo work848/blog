@@ -12,6 +12,7 @@ interface AuthState {
   clearError: () => void;
   initAuth: () => void;
   updateUser: (user: User) => void;
+  setAuth: (token: string, user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -63,5 +64,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   updateUser: (user: User) => {
     localStorage.setItem('user', JSON.stringify(user));
     set({ user });
+  },
+
+  setAuth: (token: string, user: User) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    set({ token, user });
   },
 }));
