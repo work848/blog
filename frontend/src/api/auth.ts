@@ -1,5 +1,5 @@
 import { request } from './client';
-import type { LoginRequest, LoginResponse } from '@/types';
+import type { LoginRequest, LoginResponse, SendEmailCodeRequest, ForgotPasswordRequest } from '@/types';
 
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
   return request<LoginResponse>({
@@ -28,4 +28,20 @@ export const getCurrentUser = (): LoginResponse['user'] | null => {
     }
   }
   return null;
+};
+
+export const sendForgotPasswordCode = (data: SendEmailCodeRequest): Promise<void> => {
+  return request<void>({
+    method: 'POST',
+    url: '/auth/forgot-password/send-code',
+    data,
+  });
+};
+
+export const resetPassword = (data: ForgotPasswordRequest): Promise<void> => {
+  return request<void>({
+    method: 'POST',
+    url: '/auth/forgot-password/reset',
+    data,
+  });
 };

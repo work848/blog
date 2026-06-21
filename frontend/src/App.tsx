@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
+import ForgotPassword from '@/pages/ForgotPassword';
 import ArticleDetail from '@/pages/ArticleDetail';
 import AdminLayout from '@/components/AdminLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -9,10 +11,13 @@ import ArticleList from '@/pages/admin/ArticleList';
 import ArticleEdit from '@/pages/admin/ArticleEdit';
 import CategoryTag from '@/pages/admin/CategoryTag';
 import DraftList from '@/pages/admin/DraftList';
+import AdminSettings from '@/pages/admin/AdminSettings';
 import ParticleBackground from '@/components/ParticleBackground';
 import { Link } from 'react-router-dom';
 import { Home as HomeIcon } from 'lucide-react';
 import HankoAvatar from '@/components/HankoAvatar';
+import { useAuthStore } from '@/store/authStore';
+import { useFontSettings } from '@/hooks/useFontSettings';
 
 function NotFound() {
   return (
@@ -48,11 +53,14 @@ function NotFound() {
 }
 
 export default function App() {
+  useFontSettings();
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/article/:id" element={<ArticleDetail />} />
 
         <Route
@@ -69,6 +77,7 @@ export default function App() {
           <Route path="articles/:id/edit" element={<ArticleEdit />} />
           <Route path="categories" element={<CategoryTag />} />
           <Route path="drafts" element={<DraftList />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

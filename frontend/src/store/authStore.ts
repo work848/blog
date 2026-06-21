@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { login as apiLogin, logout as apiLogout } from '@/api/auth';
-import type { LoginRequest, LoginResponse } from '@/types';
+import type { LoginRequest, LoginResponse, User } from '@/types';
 
 interface AuthState {
   user: LoginResponse['user'] | null;
@@ -11,6 +11,7 @@ interface AuthState {
   logout: () => void;
   clearError: () => void;
   initAuth: () => void;
+  updateUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -57,5 +58,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         apiLogout();
       }
     }
+  },
+
+  updateUser: (user: User) => {
+    localStorage.setItem('user', JSON.stringify(user));
+    set({ user });
   },
 }));

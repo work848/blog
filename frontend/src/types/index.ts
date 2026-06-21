@@ -1,7 +1,43 @@
 export interface User {
   id: number;
   username: string;
+  email: string | null;
+  avatar: string | null;
   role: 'ADMIN';
+}
+
+export interface UpdateUsernameRequest {
+  username: string;
+}
+
+export interface UpdatePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface BindEmailRequest {
+  email: string;
+  code: string;
+}
+
+export interface SendEmailCodeRequest {
+  email: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface FontSettingsVO {
+  fontFamily: string;
+  fontSize: string;
+}
+
+export interface UpdateFontSettingsRequest {
+  fontFamily?: string;
+  fontSize?: string;
 }
 
 export interface LoginRequest {

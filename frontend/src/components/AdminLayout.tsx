@@ -4,6 +4,7 @@ import {
   FileText,
   Tags,
   FolderOpen,
+  Settings2,
   LogOut,
   Menu,
   X,
@@ -27,6 +28,7 @@ export default function AdminLayout() {
     { path: '/admin/articles', label: '文章管理', icon: FileText },
     { path: '/admin/categories', label: '分类标签', icon: Tags },
     { path: '/admin/drafts', label: '草稿箱', icon: FolderOpen },
+    { path: '/admin/settings', label: '设置', icon: Settings2 },
   ];
 
   return (
